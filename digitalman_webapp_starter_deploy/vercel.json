@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "builds": [],
+  "routes": [
+    {
+      "src": "/sw.js",
+      "headers": {
+        "cache-control": "public,max-age=0"
+      }
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
