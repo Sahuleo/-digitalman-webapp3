@@ -1,4 +1,7 @@
-// v5: UI polish + features (checklist, quick actions, people search, local announcements) + strict PIN with lockout
+/* DM_V5_FEATURES */
+// v5.1: UI features + strict PIN + lockout (30s) + explicit marker + console banner
+console.log('DigitalMan app.js v5.1 — DM_V5_FEATURES');
+
 const dom = s => document.querySelector(s);
 const listEl = t => { const d=document.createElement('div'); d.className='item'; d.textContent=t; return d; };
 
@@ -46,7 +49,7 @@ function tryLogin(){
     return;
   }
   state.user=user; state.tries=0; state.lockedUntil=0;
-  dom('#pinInput').value='';
+  const pinEl = dom('#pinInput'); if (pinEl) pinEl.value='';
   render();
 }
 function logout(){ state.user=null; render(); }
@@ -68,70 +71,105 @@ function render(){
   if(!logged) return;
 
   // Welcome + meta
-  dom('#welcome').textContent = 'سلام، '+(state.user.full_name||state.user.name||state.user.username)+' 👋';
-  const meta=dom('#meta'); meta.innerHTML='';
-  [['سمت',state.user.role],['شیفت',state.user.shift||'—']].forEach(([k,v])=>{
+  const welcome = dom('#welcome'); if (welcome) welcome.textContent = 'سلام، '+(state.user.full_name||state.user.name||state.user.username)+' 👋';
+  const meta=dom('#meta'); if (meta){ meta.innerHTML=''; [['سمت',state.user.role],['شیفت',state.user.shift||'—']].forEach(([k,v])=>{
     const c=document.createElement('div'); c.className='chip'; c.textContent=`${k}: ${v}`; meta.appendChild(c);
-  });
+  });}
 
-  // Announcements (local only for now)
-  const ann = loadLocal('dm_announce', '');
+  // Announcements (local)
   const abox = dom('#announceBox');
-  if (ann){ abox.style.display='block'; abox.textContent='🔔 '+ann; } else { abox.style.display='none'; }
+  if (abox){
+    const ann = loadLocal('dm_announce', '');
+    if (ann){ abox.style.display='block'; abox.textContent='🔔 '+ann; } else { abox.style.display='none'; }
+  }
 
   // Routines
-  const routines=(state.data.routines||[]).filter(r=> r.full_name===(state.user.full_name||state.user.name));
-  const rBox=dom('#routinesList'); rBox.innerHTML=''; (routines.length?routines:[{routine:'—'}]).forEach(r=> rBox.appendChild(listEl(r.routine)));
+  const rBox=dom('#routinesList');
+  if (rBox){
+    const routines=(state.data.routines||[]).filter(r=> r.full_name===(state.user.full_name||state.user.name));
+    rBox.innerHTML=''; (routines.length?routines:[{routine:'—'}]).forEach(r=> rBox.appendChild(listEl(r.routine)));
+  }
 
   // Shifts
-  const shifts=(state.data.shifts||[]).filter(s=> s.full_name===(state.user.full_name||state.user.name));
-  const sBox=dom('#shiftBox'); sBox.innerHTML=''; (shifts.length?shifts:[{shift_type:'—',start:'',end:'',days:''}]).forEach(s=> sBox.appendChild(listEl(`${s.shift_type} — ${s.start} تا ${s.end} ${s.days? '('+s.days+')':''}`)));
+  const sBox=dom('#shiftBox');
+  if (sBox){
+    const shifts=(state.data.shifts||[]).filter(s=> s.full_name===(state.user.full_name||state.user.name));
+    sBox.innerHTML=''; (shifts.length?shifts:[{shift_type:'—',start:'',end:'',days:''}]).forEach(s=> sBox.appendChild(listEl(`${s.shift_type} — ${s.start} تا ${s.end} ${s.days? '('+s.days+')':''}`)));
+  }
 
   // Weekly checklist
-  const wAll=(state.data.weekly_tasks||[]).filter(w=> w.full_name===(state.user.full_name||state.user.name));
-  const keyChk='dm_chk_'+(state.user.username||'u');
-  const doneSet=new Set(loadLocal(keyChk,[]));
-  const wBox=dom('#weeklyList'); wBox.innerHTML='';
-  (wAll.length?wAll:[{day:'',task:'—'}]).forEach((w,i)=>{
-    const id=(w.day||'')+'_'+(w.task||'')+'_'+i;
-    const row=document.createElement('label'); row.className='item check';
-    row.innerHTML=`<input type="checkbox" ${doneSet.has(id)?'checked':''} data-id="${id}"><div>${w.day? w.day+': ':''}${w.task}</div>`;
-    row.querySelector('input').addEventListener('change', (e)=>{
-      if(e.target.checked) doneSet.add(id); else doneSet.delete(id);
-      saveLocal(keyChk, Array.from(doneSet));
+  const wBox=dom('#weeklyList');
+  if (wBox){
+    const wAll=(state.data.weekly_tasks||[]).filter(w=> w.full_name===(state.user.full_name||state.user.name));
+    const keyChk='dm_chk_'+(state.user.username||'u');
+    const doneSet=new Set(loadLocal(keyChk,[]));
+    wBox.innerHTML='';
+    (wAll.length?wAll:[{day:'',task:'—'}]).forEach((w,i)=>{
+      const id=(w.day||'')+'_'+(w.task||'')+'_'+i;
+      const row=document.createElement('label'); row.className='item check';
+      row.innerHTML=`<input type="checkbox" ${doneSet.has(id)?'checked':''} data-id="${id}"><div>${w.day? w.day+': ':''}${w.task}</div>`;
+      row.querySelector('input').addEventListener('change', (e)=>{
+        if(e.target.checked) doneSet.add(id); else doneSet.delete(id);
+        saveLocal(keyChk, Array.from(doneSet));
+      });
+      wBox.appendChild(row);
     });
-    wBox.appendChild(row);
-  });
+  }
 
   // OKR
-  const okr=(state.data.okr||[]).find(o=> o.full_name===(state.user.full_name||state.user.name));
-  const oBox=dom('#okrBox'); oBox.innerHTML=''; if(okr){ oBox.appendChild(listEl('🎯 هدف: '+okr.goal)); oBox.appendChild(listEl('📊 نتایج کلیدی: '+okr.key_results)); } else { oBox.appendChild(listEl('—')); }
+  const oBox=dom('#okrBox');
+  if (oBox){
+    const okr=(state.data.okr||[]).find(o=> o.full_name===(state.user.full_name||state.user.name));
+    oBox.innerHTML=''; if(okr){ oBox.appendChild(listEl('🎯 هدف: '+okr.goal)); oBox.appendChild(listEl('📊 نتایج کلیدی: '+okr.key_results)); } else { oBox.appendChild(listEl('—')); }
+  }
 
-  // People directory
-  const plist=dom('#peopleList'); plist.innerHTML='';
-  (state.data.employees||[]).forEach(e=>{
-    const it=document.createElement('div'); it.className='item';
-    it.innerHTML=`<strong>${e.full_name}</strong> — ${e.role}<br><span class="muted">${e.shift||''}</span>`;
-    plist.appendChild(it);
-  });
+  // People directory + search
+  const pList=dom('#peopleList');
+  const pSearch=dom('#peopleSearch');
+  if (pList){
+    pList.innerHTML='';
+    (state.data.employees||[]).forEach(e=>{
+      const it=document.createElement('div'); it.className='item';
+      it.innerHTML=`<strong>${e.full_name}</strong> — ${e.role}<br><span class="muted">${e.shift||''}</span>`;
+      pList.appendChild(it);
+    });
+  }
+  if (pSearch){
+    pSearch.addEventListener('input', (e)=>{
+      const q=(e.target.value||'').trim();
+      const cards = document.querySelectorAll('#peopleList .item');
+      cards.forEach(card=>{
+        const txt = card.textContent || '';
+        card.style.display = txt.includes(q) ? '' : 'none';
+      });
+    });
+  }
+  const pClear = dom('#peopleClear'); if (pClear){ pClear.addEventListener('click', ()=>{ if(pSearch){ pSearch.value=''; pSearch.dispatchEvent(new Event('input')); } }); }
 
-  // Admin tab
+  // Admin tab & announcement save
   const isAdmin = ((state.user.role||'') + (state.user.full_name||'') ).includes('مدیر');
   const aTab=dom('#adminTab'); if(aTab) aTab.style.display = isAdmin? '':'';
-  if(isAdmin){
-    const sum=dom('#adminSummary'); sum.innerHTML='';
-    (state.data.employees||[]).forEach(e=>{
-      const d=document.createElement('div'); d.className='item';
-      d.innerHTML = `<strong>${e.full_name}</strong> — ${e.role}<br><span class="muted">${e.shift||''}</span>`;
-      sum.appendChild(d);
-    });
+  if (isAdmin){
+    const sum=dom('#adminSummary'); if(sum){ sum.innerHTML='';
+      (state.data.employees||[]).forEach(e=>{
+        const d=document.createElement('div'); d.className='item';
+        d.innerHTML = `<strong>${e.full_name}</strong> — ${e.role}<br><span class="muted">${e.shift||''}</span>`;
+        sum.appendChild(d);
+      });
+    }
+    const aInput = dom('#announceInput'); const aSave = dom('#announceSave');
+    if (aSave){ aSave.addEventListener('click', ()=>{
+      const txt = aInput?.value || '';
+      localStorage.setItem('dm_announce', txt);
+      render();
+    });}
   }
 }
 
 function attach(){
-  dom('#btnLogin')?.addEventListener('click', tryLogin);
-  dom('#btnLogout')?.addEventListener('click', logout);
-  dom('#pinInput')?.addEventListener('keyup', e=>{ if(e.key==='Enter') tryLogin(); });
+  const btnIn = dom('#btnLogin'); if (btnIn) btnIn.addEventListener('click', tryLogin);
+  const btnOut = dom('#btnLogout'); if (btnOut) btnOut.addEventListener('click', logout);
+  const pinEl = dom('#pinInput'); if (pinEl) pinEl.addEventListener('keyup', e=>{ if(e.key==='Enter') tryLogin(); });
 
   // Tabs
   document.querySelectorAll('.tab').forEach(t=> t.addEventListener('click', ()=>{
@@ -142,43 +180,6 @@ function attach(){
       const el=dom('#'+sec); if(el) el.style.display = (sec===id)? '' : 'none';
     });
   }));
-
-  // Quick actions
-  dom('#qaNote')?.addEventListener('click', ()=>{
-    dom('#myNote')?.focus();
-  });
-  dom('#qaDone')?.addEventListener('click', ()=>{
-    const key='dm_day_done_'+(state.user?.username||'u');
-    const today = new Date().toISOString().slice(0,10);
-    localStorage.setItem(key, today);
-    const stamp = dom('#saveStamp'); if (stamp) stamp.textContent = '✅ ثبت شد: '+today;
-  });
-  dom('#myNote')?.addEventListener('change', ()=>{
-    if(!state.user) return;
-    const key='dm_note_'+state.user.username;
-    localStorage.setItem(key, dom('#myNote').value);
-    const stamp=dom('#saveStamp'); if(stamp) stamp.textContent='ذخیره شد ✔';
-  });
-
-  // People search
-  dom('#peopleSearch')?.addEventListener('input', (e)=>{
-    const q=(e.target.value||'').trim();
-    const cards = document.querySelectorAll('#peopleList .item');
-    cards.forEach(card=>{
-      const txt = card.textContent || '';
-      card.style.display = txt.includes(q) ? '' : 'none';
-    });
-  });
-  dom('#peopleClear')?.addEventListener('click', ()=>{
-    const i=dom('#peopleSearch'); if(i){ i.value=''; i.dispatchEvent(new Event('input')); }
-  });
-
-  // Admin announcement (local)
-  dom('#announceSave')?.addEventListener('click', ()=>{
-    const txt = dom('#announceInput')?.value || '';
-    localStorage.setItem('dm_announce', txt);
-    render();
-  });
 }
 
 async function boot(){ await loadData(); fillUsers(); attach(); render(); }
