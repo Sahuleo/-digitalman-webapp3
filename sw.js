@@ -1,6 +1,6 @@
 self.addEventListener('install', e=>{
-  e.waitUntil(caches.open('dm-v1').then(c=>c.addAll([
-    '/', '/index.html', '/assets/app.js', '/assets/data.json', '/manifest.json'
+  e.waitUntil(caches.open('dm-auth-v1').then(c=>c.addAll([
+    './','./index.html','./assets/app.js','./assets/data.json','./manifest.json'
   ])));
 });
 self.addEventListener('fetch', e=>{
