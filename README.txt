@@ -1,22 +1,17 @@
 
-# DigitalMan - app.js v4 (Strict PIN + Lockout)
+# Cache Reset Kit (dm-v7)
 
-**چه چیزهایی عوض شد؟**
-- اعتبارسنجی سختگیرانه PIN از روی `assets/data.json`
-- حذف ورود خودکار (auto-login)
-- قفل ۳۰ ثانیه‌ای بعد از ۳ تلاش ناموفق
-- تحمل هر دو ساختار داده: `{"employees":[...]}` یا آرایه‌ی ساده
+این بسته برای حل مشکل لود شدن `app.js` قدیمی است.
 
-**چگونه جایگزین کنم؟**
-1) این زیپ را Extract کنید.
-2) در GitHub: **Add file → Upload files**
-3) فایل `assets/app.js` را بکشید و روی ریپو رها کنید تا **Overwrite** شود.
-4) **Commit changes**
-5) صفحه را با یکی از راه‌های زیر تازه کنید:
-   - اضافه کردن `?v=4` به آخر URL: `/assets/app.js?v=4`
-   - یا **Ctrl+F5**
-   - یا DevTools → Application → Service Workers → Unregister → Refresh
+## فایل‌ها
+- `purge.html`: همهٔ کش‌ها را حذف و Service Worker را Unregister می‌کند.
+- `sw.js`: سرویس‌ورکر جدید با کلید **dm-v7** که برای `assets/app.js` و `assets/data.json` سیاست **Network-First** دارد.
 
-**پیش‌نیازها**
-- در HTML باید این شناسه‌ها وجود داشته باشد: `#userSelect`, `#pinInput`, `#btnLogin`, `#loginError`
-- داده‌ها باید در `assets/data.json` با کلید `employees` (یا آرایه مستقیم) و فیلدهای `username`, `pin`, `full_name`, `role` باشند.
+## مراحل
+1) این دو فایل را در ریشهٔ GitHub Pages خودتان **آپلود و جایگزین** کنید:
+   - `purge.html`
+   - `sw.js`
+2) آدرس `purge.html` را باز کنید و دکمهٔ «پاکسازی الان» را بزنید:
+   `https://YOUR-PAGES/purge.html`
+3) صفحهٔ اصلی اپ را رفرش کنید (CTRL+F5). حالا باید `assets/app.js?v=5` از شبکه بیاید.
+4) برای اطمینان، `diagnostics_v2.html` را باز کنید؛ باید «contains v5 features» سبز باشد.
