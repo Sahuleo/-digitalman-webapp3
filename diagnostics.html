@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Diagnostics – دیجیتال‌من</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,Tahoma; background:#0f0f12; color:#f5f5f7; margin:0}
+    header{position:sticky;top:0;background:#17171b;border-bottom:1px solid #26262e;padding:12px 16px}
+    main{max-width:900px;margin:0 auto;padding:16px}
+    .panel{background:#17171b;border:1px solid #2b2b33;border-radius:12px;padding:14px;margin:12px 0}
+    .ok{color:#81c784}.warn{color:#ffb74d}.bad{color:#e57373}
+    code{background:#111217;border:1px solid #2b2b33;border-radius:6px;padding:2px 6px}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    input,select{background:#101014;color:#fff;border:1px solid #2b2b33;border-radius:8px;padding:8px}
+    button{background:#5b44c7;border:none;color:#fff;border-radius:8px;padding:8px 12px;cursor:pointer}
+    .muted{color:#a8a8b3}
+    ul{margin:6px 0 0 18px}
+  </style>
+</head>
+<body>
+<header><strong>Diagnostics / عیب‌یابی</strong> <span class="muted">— فقط برای مدیر • بعد از تست حذف شود</span></header>
+<main>
+  <div class="panel">
+    <div id="ver"></div>
+    <div id="sw"></div>
+    <div id="cache"></div>
+  </div>
+
+  <div class="panel">
+    <h3>۱) بررسی data.json</h3>
+    <div id="djson" class="muted">در حال بارگذاری…</div>
+    <ul id="users"></ul>
+  </div>
+
+  <div class="panel">
+    <h3>۲) بررسی نسخه app.js</h3>
+    <div id="appjs" class="muted">در حال بارگذاری…</div>
+  </div>
+
+  <div class="panel">
+    <h3>۳) تست PIN محلی (فقط برای تأیید کلاینت)</h3>
+    <div class="row">
+      <select id="who"></select>
+      <input id="pin" type="password" inputmode="numeric" placeholder="PIN چهاررقمی">
+      <button id="test">تست ورود</button>
+    </div>
+    <div id="result" style="margin-top:8px"></div>
+    <div class="muted" style="margin-top:8px">تذکر: این تست فقط در همین صفحه انجام می‌شود و کاربر را لاگین نمی‌کند.</div>
+  </div>
+
+  <div class="panel">
+    <h3>۴) اقدامات پیشنهادی</h3>
+    <ul>
+      <li>اگر <code>app.js?v=3</code> قدیمی است: فایل را دوباره آپلود کنید و یکبار <b>Unregister</b> سرویس‌ورکر بزنید.</li>
+      <li>اگر <code>data.json</code> ناقص است: نسخهٔ کامل را جایگزین کنید.</li>
+      <li>پس از اتمام تست‌ها، این فایل <code>diagnostics.html</code> را از ریپو حذف کنید.</li>
+    </ul>
+  </div>
+</main>
+<script src="assets/diagnostics.js?v=1"></script>
+</body>
+</html>
