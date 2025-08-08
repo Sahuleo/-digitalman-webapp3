@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <title>داشبورد دیجیتال‌من – ورود</title>
+  <title>داشبورد دیجیتال‌من – ورود (بدون SW)</title>
   <meta name="theme-color" content="#5b44c7">
   <link rel="manifest" href="manifest.json">
   <style>
@@ -96,7 +96,7 @@
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch(()=>{});
+      // SW disabled for debug
     });
   }
 </script>
