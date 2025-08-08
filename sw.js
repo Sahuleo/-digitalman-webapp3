@@ -1,5 +1,5 @@
 self.addEventListener('install', e=>{
-  e.waitUntil(caches.open('dm-auth-v1').then(c=>c.addAll([
+  e.waitUntil(caches.open('dm-auth-v2').then(c=>c.addAll([
     './','./index.html','./assets/app.js','./assets/data.json','./manifest.json'
   ])));
 });
