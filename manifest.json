@@ -1,0 +1,9 @@
+{
+  "name": "داشبورد دیجیتال‌من",
+  "short_name": "دیجیتال‌من",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0f0f12",
+  "theme_color": "#5b44c7",
+  "icons": []
+}
