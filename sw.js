@@ -1,5 +1,5 @@
 self.addEventListener('install', e=>{
-  e.waitUntil(caches.open('dm-v5').then(c=>c.addAll([
+  e.waitUntil(caches.open('dm-v6').then(c=>c.addAll([
     './','./index.html','./assets/app.js?v=5','./assets/data.json','./manifest.json'
   ])));
 });
